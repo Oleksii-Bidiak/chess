@@ -1,26 +1,57 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react'
+import './App.scss'
+import { BoardComponent } from './components/BoardComponent'
+import { LostFigures } from './components/LostFigures'
+import { Timer } from './components/Timer'
+import { Board } from './models/Board'
+import { Colors } from './models/Colors'
+import { Player } from './models/Player'
 
-function App() {
+export const App = () => {
+  // Стан для згенерованої дошки
+  const [board, setBoard] = useState(new Board())
+  const [whitePlayer, setwhitePlayer] = useState(new Player(Colors.WHITE))
+  const [blackPlayer, setBlackPlayer] = useState(new Player(Colors.BLACK))
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null)
+
+  useEffect(() => {
+    restart()
+  }, [])
+
+  const swapPlayer = () => {
+    setCurrentPlayer(currentPlayer?.color === Colors.WHITE ? blackPlayer : whitePlayer)
+  }
+
+  function restart() {
+    const newBoard = new Board()
+    newBoard.initCells()
+    newBoard.addFigures()
+    setBoard(newBoard)
+    setCurrentPlayer(whitePlayer)
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app'>
+      <Timer
+        currentPlayer={currentPlayer}
+        restart={restart}
+      />
+      <BoardComponent
+        board={board}
+        setBoard={setBoard}
+        currentPlayer={currentPlayer}
+        swapPlayer={swapPlayer}
+      />
+      <div>
+        <LostFigures
+          title="Чорні фігури"
+          figures={board.lostBlackFigures}
+        />
+        <LostFigures
+          title="Білі фігури"
+          figures={board.lostWhiteFigures}
+        />
+      </div>
     </div>
-  );
+  )
 }
-
-export default App;
